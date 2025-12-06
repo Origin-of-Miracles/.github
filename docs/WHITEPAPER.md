@@ -5,7 +5,27 @@
 - **Version:** 1.0.0-Draft
 - **Codename:** Project Kivotos
 - **Target Platform:** Minecraft Java Edition 1.20.1 (Forge)
-- **License:** [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/) / CC BY-NC-SA 4.0
+  - *当前仅针对 Forge 1.20.1 进行开发，后续可能会根据社区呼声支持 NeoForge 版本。*
+- **License:** [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+---
+
+## 0. Executive Summary | 执行摘要
+
+**Origin of Miracles** 是一个非官方的粉丝项目 (Fan-made Project)，旨在将《蔚蓝档案》(Blue Archive) 的沉浸式体验带入 Minecraft 世界。
+
+### 核心亮点
+
+-  **革命性 UI 体验**：通过 Webview 技术，将原作精美的 UI 设计完整复刻到游戏中，告别传统方块 GUI。
+-  **MomoTalk 社交系统**：与学生进行真实的对话互动，体验养成乐趣。
+-  **沉浸式抽卡**：还原经典的"蓝天白云"招募动画，仪式感拉满。
+-  **TacZ 枪械整合**：高度还原各学院学生的专属武器与战斗体验。
+
+### 项目定位
+
+本项目完全 **非商业化**，采用 **CC BY-NC-SA 4.0** 许可证，严禁任何形式的商业使用。我们是热爱《蔚蓝档案》的开发者社区，致力于为 Sensei 们创造独特的方块世界冒险体验。
+
+> ** 免责声明：** 本项目与 NEXON Games 或 Yostar 无任何官方关联。所有《蔚蓝档案》相关素材的版权归原作者所有。
 
 ---
 
@@ -76,7 +96,9 @@
 * **Mode:** 开启 **OSR (Off-Screen Rendering)** 模式，配合 CSS `background: transparent`，实现非矩形、不遮挡视野的 UI 叠加层。
 
 ### 4.2 Optimization (性能优化)
-* **Loading:** Web 资源托管在云端（Vercel/Cloudflare），减轻客户端 Mod 体积。利用浏览器缓存机制加速二次打开速度。
+* **Loading:** Web 资源采用**本地渲染**方案。前端项目随 Mod 一同分发，通过本地开发服务器（类似 `pnpm dev`）启动，由 Webview 加载 `localhost` 地址。
+    * **优点：** 无需联网即可运行，加载速度快，隐私性更好。
+    * **构建方式：** 玩家安装 Mod 后，前端资源会被自动解压到本地目录，Mod 启动时自动拉起本地服务。
 * **Memory:** 仅在 GUI 打开时活跃渲染，关闭 GUI 时暂停 JS 执行或卸载 Webview 进程，防止内存泄漏。
 
 ---
@@ -86,11 +108,16 @@
 本项目采取极其严格的**非商业化策略**，以保护开源成果不被滥用。
 
 ### 5.1 License Selection
-* **Protocol:** **PolyForm Noncommercial License 1.0.0** (Recommended) or **CC BY-NC-SA 4.0**.
+* **Protocol:** **[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)** (Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International)
 * **Constraints:**
-    1.  **Attribution (署名):** 任何使用必须保留 "Origin of Miracles" 标识。
-    2.  **Non-Commercial (非商用):** **严禁**用于任何营利性服务器（包括但不限于拥有付费白名单、售卖数值道具、VIP 制度的服务器）。仅允许纯公益（无偿捐赠）服务器使用。
-    3.  **Share-Alike (相同方式共享):** 任何基于本项目的 Fork 或修改版，必须沿用相同的非商用协议。
+    1.  **Attribution (署名):** 任何使用必须保留 "Origin of Miracles" 标识，并注明原作者。
+    2.  **Non-Commercial (非商用):** **严禁**用于任何营利性用途，包括但不限于：
+        - 拥有付费白名单的服务器
+        - 售卖数值道具、皮肤、特权的服务器
+        - 任何形式的 VIP / 会员制度
+        - 将本项目或其衍生品用于商业推广
+        - **仅允许纯公益服务器（完全无偿、无任何变相收费）使用**
+    3.  **Share-Alike (相同方式共享):** 任何基于本项目的 Fork、修改版或衍生作品，**必须**沿用 CC BY-NC-SA 4.0 协议。
 
 ### 5.2 Defense Mechanisms (防御机制)
 * **Frontend Lock:** Webview 前端代码中植入版权标识，若检测到非授权域名的请求，显示“盗版警告”。
