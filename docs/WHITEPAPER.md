@@ -39,21 +39,21 @@
 
 ## 2. Technical Architecture | 技术架构
 
-本项目采用 **前后端分离 (Decoupled Architecture)** 的设计模式，将游戏逻辑（Java）与界面表现（React/TS）完全剥离。
+本项目采用 **前后端分离 (Decoupled Architecture)** 的设计模式，将游戏逻辑（Java）与界面表现（React/TS）完全剥离，确保系统的灵活性与可维护性。
 
 ### 2.1 Component Topology | 核心组件拓扑
 
 | Component | Codename | Tech Stack | Responsibility |
 | :--- | :--- | :--- | :--- |
-| **Miracle Bridge** | `Client` | **Java (Forge 1.20.1)** | **[容器层 / 底座]** <br> 1. 负责加载 Chromium 内核 (MCEF)。<br> 2. 监听 MC 游戏事件 (按键、击杀、交互)。<br> 3. 提供 JS <-> Java 的双向通信管道。 |
-| **Shittim OS** | `Webview` | **React + ShadcnUI** | **[表现层 / 界面]** <br> 1. 运行于游戏内浏览器的单页应用 (SPA)。<br> 2. 负责渲染 MomoTalk、学生档案、抽卡动画。<br> 3. 处理复杂的 UI 交互逻辑。 |
-| **Server Pack** | `World` | **TacZ + Scripts** | **[内容层 / 玩法]** <br> 1. 枪械数据平衡、总力战 Boss 机制（待定）。<br> 2. 经济系统数值策划。<br> 3. 任务脚本。 |
+| **Miracle Bridge** | `Client` | **Java (Forge 1.20.1)** | **[容器层 / 底座]** <br> 1. 负责加载 Chromium 内核 (MCEF)。<br> 2. 监听 MC 游戏事件 (按键、击杀、交互)。<br> 3. 提供 JS <-> Java 的双向原生通信管道 (Native Bridge)。 |
+| **Shittim OS** | `Webview` | **React + ShadcnUI** | **[表现层 / 界面]** <br> 1. 运行于游戏内浏览器的单页应用 (SPA)。<br> 2. 负责渲染 MomoTalk、学生档案、抽卡动画。<br> 3. 处理复杂的 UI 交互逻辑与状态管理。 |
+| **Server Pack** | `World` | **TacZ + Scripts** | **[内容层 / 玩法]** <br> 1. 枪械数据平衡、总力战 Boss 机制 (TBD/待定)。<br> 2. 经济系统数值策划。<br> 3. 任务脚本与地图编排。 |
 
 ### 2.2 Data Flow | 通信数据流
 
 * **Java to Web (下行 / Downstream):**
     * **Trigger:** 玩家按下 `M` 键 -> Mod 捕获事件 -> 调用 `browser.executeJavaScript("openShittimChest()")` -> Web 端渲染主界面。
-    * **State Sync:** 玩家血量变化/获得物品 -> Mod 推送 JSON 数据 -> Web 端 React Store 更新 -> UI 实时重绘。
+    * **State Sync:** 玩家血量变化/获得物品 -> Mod 推送 JSON 数据 -> Web 端 React Store (Zustand/Redux) 更新 -> UI 实时重绘。
 * **Web to Java (上行 / Upstream):**
     * **Action:** 玩家在 Web 界面点击“制造物品” -> JS 发起 `cefQuery` -> Mod 接收请求 -> 检查材料并执行 `/give` 指令。
 
@@ -62,45 +62,48 @@
 ## 3. Features & Effects | 功能模块与实现效果
 
 ### 3.1 Shittim Chest System (什亭之箱 OS)
-* **Visual Effect:** 全屏、透明背景的高科技 HUD，非传统的方块 GUI。
+* **Visual Effect:** 全屏、透明背景的高科技 HUD，突破传统 MC 方块 GUI 的视觉限制。
 * **Interactions:**
-    * **MomoTalk:** 仿真的社交软件界面，玩家可浏览学生发来的消息，点击选项回复会增加好感度。
-    * **Live2D / Motion:** 在界面左侧展示看板娘（L2D 或动态 Sprite），根据玩家点击触发不同的动作和语音。
+    * **MomoTalk:** 深度复刻的社交软件界面。玩家可浏览学生消息，点击选项回复可触发好感度逻辑与剧情分支。
+    * **Live2D / Motion:** 界面左侧常驻看板娘（L2D 或动态 Sprite），支持触摸反馈（点击触发动作/语音）。
 
 ### 3.2 Immersive Gacha (沉浸式抽卡)
-* **Visual Effect:** 解决 MC 原版抽奖箱毫无仪式感的问题。Webview 全屏播放经典的“蓝天白云”或“彩虹光”签收动画。
-* **Logic:** 动画结束后，通过回调函数在 MC 玩家背包中生成对应的“学生专武”或“角色召唤卡”。
-* **Pity System:** 前端记录抽卡次数，视觉上展示“招募点数”进度条。
+* **Visual Effect:** 解决原版抽奖箱缺乏仪式感的痛点。
+* **Logic:** 动画回调与服务端逻辑绑定。动画结束后，通过指令在玩家背包中生成“学生专武”或“角色召唤卡”。
+* **Pity System:** 前端可视化展示“招募点数”进度条，后台数据实时同步保底状态。
 
 ### 3.3 Tactics & Total Assault (战术与总力战)
 * **TacZ Integration:**
-    * 还原各学院学生的专属武器，通过 Mod 修改其弹道、后坐力和特效。
-    * 使用 Webview 绘制动态准星或弹药计数器（可选），替代原版 HUD。
+    * 还原各学院学生的专属武器，深度定制弹道、后坐力与开火特效。
+    * **Web HUD:** 使用 Webview 绘制动态准星、残弹数与战术面板，替代原版简陋 UI。
 * **Boss Visualization:**
-    * 在屏幕上方渲染多阶段 Boss 血条（Webview 实现），带有精美的边框和阶段转换动画。
-    * 战斗结算时，弹出类似原作的“通关评价”结算板，显示 MVP 和伤害数据。
+    * **Status Bar:** 在屏幕上方渲染多阶段 Boss 血条，包含精美的边框装饰与阶段转换动画。
+    * **Result Screen:** 战斗结算时，弹出复刻原作的结算板，动态展示 MVP、总伤害与战斗耗时。
 
 ### 3.4 Economy & Progression (经济与养成)
 * **Dual Currency:**
-    * **Credits (信用点):** 游戏内通用货币（可交易）。
-    * **Pyroxene (青辉石):** 只能通过 Web 任务面板领取，用于抽卡。
+    * **Credits (信用点):** 游戏内通用货币，用于基础交易。
+    * **Pyroxene (青辉石):** 稀有通货，仅通过 Web 任务面板领取，用于启动抽卡系统。
 * **Cafe System:**
-    * 玩家拥有独立空间，通过 Webview 界面管理家具摆放。
+    * 玩家拥有独立空间，通过 Webview 的可视化界面管理家具摆放与舒适度升级。
 
 ---
 
 ## 4. Implementation Strategy | 关键技术实现
 
 ### 4.1 Rendering Core (渲染核心)
-* **Dependency:** **MCEF (ds58 Fork)**，专为 Minecraft 1.20.1+ Forge 优化。
+* **Dependency:** **MCEF (ds58 Fork)**。选用专为 Minecraft 1.20.1+ Forge 优化的 Chromium 分支。
 * **Mode:** 开启 **OSR (Off-Screen Rendering)** 模式，配合 CSS `background: transparent`，实现非矩形、不遮挡视野的 UI 叠加层。
 
 ### 4.2 Optimization (性能优化)
-* **Loading:** Web 资源采用**本地渲染**方案。前端项目随 Mod 一同分发，通过本地开发服务器（类似 `pnpm dev`）启动，由 Webview 加载 `localhost` 地址。
-    * **优点：** 无需联网即可运行，加载速度快，隐私性更好。
-    * **构建方式：** 玩家安装 Mod 后，前端资源会被自动解压到本地目录，Mod 启动时自动拉起本地服务。
-* **Memory:** 仅在 GUI 打开时活跃渲染，关闭 GUI 时暂停 JS 执行或卸载 Webview 进程，防止内存泄漏。
-
+* **Local Hosting Strategy (本地化部署):**
+    * **原理:** 摒弃云端加载，采用 **Embedded Server (内置服务器)** 方案。
+    * **构建流程:** 前端构建产物 (HTML/CSS/JS) 随 Mod 资源包一同分发。
+    * **运行时:** Mod 启动时在后台开启一个轻量级 HTTP 服务 (基于 Netty 或 SimpleWebServer)，将本地资源挂载为 `localhost` 动态端口。
+    * **优势:** 1. **零延迟:** 界面打开速度不受网速影响，秒级响应。
+        2. **离线支持:** 玩家无需联网即可完整体验 GUI 功能。
+        3. **安全性:** 避免了跨域资源共享 (CORS) 问题，且不依赖外部 CDN 稳定性。
+* **Lifecycle Management:** 仅在 GUI 打开时活跃渲染；关闭 GUI 时自动挂起 JS 执行或销毁 Webview 进程，确保对游戏 FPS 零影响。
 ---
 
 ## 5. Licensing & EULA | 许可证与法律声明
