@@ -15,7 +15,7 @@
 
   <p align="center">
     <b>
-      <a href="../docs/MANIFESTO.md">📖 Read Community Manifesto | 阅读社区宣言</a>
+      <a href="https://bluearchive.shinoyuki.cn">📖 Read Community Manifesto | 阅读社区宣言</a>
       &nbsp; • &nbsp;
       <a href="../EULA.md">⚖️ EULA & Commercial Policy | 商业使用协议</a>
     </b>
